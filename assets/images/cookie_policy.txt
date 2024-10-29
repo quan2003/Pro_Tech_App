@@ -1,0 +1,45 @@
+I. GIỚI THIỆU
+Chính sách cookie này giải thích cách chúng tôi sử dụng cookie và các công nghệ tương tự (như pixel và tín hiệu theo dõi) trên trang web của chúng tôi. Cookie là các tệp nhỏ được lưu trữ trên thiết bị của bạn khi bạn truy cập trang web. Chúng giúp chúng tôi cung cấp dịch vụ tốt hơn và cải thiện trải nghiệm của bạn.
+
+II. COOKIE LÀ GÌ?
+Cookie là các tệp văn bản nhỏ được gửi từ máy chủ web và lưu trữ trên trình duyệt của bạn. Chúng giúp nhận diện thiết bị của bạn và ghi nhớ các thông tin nhất định khi bạn quay lại trang web.
+
+III. CÁC LOẠI COOKIE CHÚNG TÔI SỬ DỤNG
+1. Cookie cần thiết: Những cookie này là cần thiết cho việc vận hành trang web. Chúng bao gồm:
+   - Cookie xác thực: Để xác minh người dùng và bảo vệ thông tin cá nhân.
+   - Cookie phiên: Để duy trì trạng thái phiên người dùng giữa các trang.
+
+2. Cookie phân tích: Những cookie này cho phép chúng tôi nhận diện và đếm số lượng khách truy cập và theo dõi cách mà khách truy cập di chuyển xung quanh trang web. Điều này giúp chúng tôi:
+   - Cải thiện trang web bằng cách hiểu hành vi người dùng.
+   - Tối ưu hóa trải nghiệm người dùng.
+
+3. Cookie chức năng: Những cookie này được sử dụng để ghi nhớ sự lựa chọn của bạn và cung cấp các tính năng cải tiến và cá nhân hóa, như:
+   - Ghi nhớ thông tin đăng nhập của bạn.
+   - Cung cấp các tính năng cá nhân hóa như tùy chọn ngôn ngữ.
+
+4. Cookie quảng cáo: Những cookie này được sử dụng để theo dõi hoạt động duyệt web của bạn để cung cấp quảng cáo phù hợp hơn với sở thích của bạn. Chúng cũng giúp giới hạn số lần bạn nhìn thấy một quảng cáo.
+
+IV. CÁCH CHÚNG TÔI SỬ DỤNG COOKIE
+Chúng tôi sử dụng cookie để:
+- Cải thiện trải nghiệm người dùng bằng cách ghi nhớ sở thích và hành vi duyệt web của bạn.
+- Phân tích lưu lượng truy cập và hiệu suất trang web.
+- Cung cấp nội dung và quảng cáo được cá nhân hóa.
+- Theo dõi các giao dịch và hoạt động của người dùng trên trang web.
+
+V. CÁCH QUẢN LÝ COOKIE
+Bạn có thể quản lý cookie thông qua cài đặt trình duyệt của mình. Dưới đây là hướng dẫn cho một số trình duyệt phổ biến:
+- Google Chrome: Vào cài đặt > Quyền riêng tư và bảo mật > Cookie và các dữ liệu trang web.
+- Mozilla Firefox: Vào tùy chọn > Quyền riêng tư & bảo mật > Cookie và dữ liệu trang web.
+- Safari: Vào cài đặt > Quyền riêng tư > Quản lý dữ liệu trang web.
+
+Lưu ý rằng việc tắt cookie có thể ảnh hưởng đến trải nghiệm của bạn trên trang web.
+
+VI. THAY ĐỔI CHÍNH SÁCH COOKIE
+Chúng tôi có thể cập nhật chính sách cookie này theo thời gian. Mọi thay đổi sẽ được thông báo trên trang này. Vui lòng kiểm tra thường xuyên để được cập nhật thông tin mới nhất. Ngày sửa đổi cuối cùng sẽ được ghi rõ ở đầu tài liệu này.
+
+VII. QUYỀN CỦA BẠN
+Bạn có quyền yêu cầu quyền truy cập vào các thông tin cá nhân mà chúng tôi thu thập thông qua cookie. Bạn cũng có quyền yêu cầu chỉnh sửa hoặc xóa thông tin cá nhân của mình. Để thực hiện điều này, xin vui lòng liên hệ với chúng tôi qua thông tin liên hệ dưới đây.
+
+VIII. LIÊN HỆ CHÚNG TÔI
+Nếu bạn có bất kỳ câu hỏi nào về chính sách cookie này hoặc cách chúng tôi sử dụng cookie, xin vui lòng liên hệ với chúng tôi qua email:
+contact@example.com
