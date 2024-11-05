@@ -23,6 +23,7 @@ import '../controller/StepTrackingService.dart';
 import 'SleepTrackingScreen.dart';
 import 'StepTrackerScreen.dart';
 import 'TearmsAndConditionsScreen.dart';
+import 'check/HeartDiseaseCheckScreen.dart';
 
 // Function to show running reminder notification
 void _showRunningReminder() {
@@ -660,6 +661,105 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.blue[400]!,
+                            Colors.blue[600]!,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Kiểm tra sức khỏe',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Kết quả đánh giá sẽ cho bạn\nlời khuyên xử trí phù hợp!',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Image.asset(
+                                    'assets/images/doctors.png',
+                                    height: 80,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            GridView.count(
+                              crossAxisCount: 2,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                              childAspectRatio: 1.1,
+                              children: [
+                                _buildHealthCheckCard2(
+                                    title:
+                                        'Kiểm tra nguy cơ\nmắc bệnh tim mạch',
+                                    iconPath: 'assets/images/heart.png',
+                                    onTap: () {
+                                      Get.to(
+                                        () => const HeartDiseaseCheckScreen(),
+                                        transition: Transition.rightToLeft,
+                                      );
+                                    }),
+                                _buildHealthCheckCard2(
+                                  title: 'Kiểm tra nguy cơ\nmắc bệnh Alzgeimer',
+                                  iconPath: 'assets/images/brain.png',
+                                  onTap: () {},
+                                ),
+                                _buildHealthCheckCard2(
+                                  title:
+                                      'Kiểm tra nguy cơ\nmắc bệnh tiểu đường',
+                                  iconPath: 'assets/images/diabetes.png',
+                                  onTap: () {},
+                                ),
+                                _buildHealthCheckCard2(
+                                  title:
+                                      'Kiểm tra nguy cơ\nmắc bệnh trào ngược dạ dày',
+                                  iconPath: 'assets/images/stomach.png',
+                                  onTap: () {},
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -684,6 +784,70 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildHealthCheckCard2({
+    required String title,
+    required String iconPath,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      // Wrap bằng Material để có hiệu ứng ripple
+      color: Colors.transparent,
+      child: GestureDetector(
+        // Hoặc InkWell
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      iconPath,
+                      height: 28,
+                      width: 28,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        height: 1.2,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                GestureDetector(
+                  // Wrap riêng text "Bắt đầu"
+                  onTap: onTap,
+                  child: const Text(
+                    'Bắt đầu',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildHealthGoal({
     required Widget icon, // Thay IconData bằng Widget
     required String label,
@@ -700,7 +864,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Row(
               children: [
-                icon, // Hiển thị Widget icon (có thể là Icon hoặc Image)
+                icon,
                 const SizedBox(width: 15),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

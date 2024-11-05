@@ -67,7 +67,7 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
     Color backgroundColor = Colors.white,
   }) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
@@ -75,31 +75,31 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             SizedBox(width: 24, height: 24, child: icon),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     value,
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
@@ -119,15 +119,15 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          decoration: InputDecoration(hintText: "Enter value"),
+          decoration: const InputDecoration(hintText: "Enter value"),
         ),
         actions: [
           TextButton(
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
             onPressed: () => Navigator.of(context).pop(),
           ),
           TextButton(
-            child: Text('Add'),
+            child: const Text('Add'),
             onPressed: () async {
               if (controller.text.isNotEmpty) {
                 double value = double.parse(controller.text);
@@ -155,82 +155,86 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: Text('Health Dashboard'),
+        title: const Text('Health Dashboard'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text(_error!))
               : RefreshIndicator(
                   onRefresh: _fetchData,
                   child: ListView(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     children: [
                       _buildHealthCard(
                         title: 'Steps',
                         value: '${_healthData['steps'] ?? '0'}',
-                        icon: Icon(Icons.directions_walk, color: Colors.blue),
+                        icon: const Icon(Icons.directions_walk,
+                            color: Colors.blue),
                       ),
                       _buildHealthCard(
                         title: 'Heart Rate',
                         value: _healthData['heart_rate'] != null
                             ? '${_healthData['heart_rate']['value']} ${_healthData['heart_rate']['unit']}'
                             : 'N/A BPM',
-                        icon: Icon(Icons.favorite, color: Colors.red),
+                        icon: const Icon(Icons.favorite, color: Colors.red),
                       ),
                       _buildHealthCard(
                         title: 'Blood Pressure',
                         value: _healthData['blood_pressure'] != null
                             ? '${_healthData['blood_pressure']['systolic']}/${_healthData['blood_pressure']['diastolic']} ${_healthData['blood_pressure']['unit']}'
                             : 'N/A mmHg',
-                        icon: Icon(Icons.show_chart, color: Colors.purple),
+                        icon:
+                            const Icon(Icons.show_chart, color: Colors.purple),
                       ),
                       _buildHealthCard(
                         title: 'Blood Glucose',
                         value: _healthData['blood_glucose'] != null
                             ? '${_healthData['blood_glucose']['value']} ${_healthData['blood_glucose']['unit']}'
                             : 'N/A mg/dL',
-                        icon: Icon(Icons.water_drop, color: Colors.orange),
+                        icon:
+                            const Icon(Icons.water_drop, color: Colors.orange),
                       ),
                       _buildHealthCard(
                         title: 'Blood Oxygen',
                         value: _healthData['blood_oxygen'] != null
                             ? '${_healthData['blood_oxygen']['value']} ${_healthData['blood_oxygen']['unit']}'
                             : 'N/A %',
-                        icon: Icon(Icons.air, color: Colors.lightBlue),
+                        icon: const Icon(Icons.air, color: Colors.lightBlue),
                       ),
                       _buildHealthCard(
                         title: 'Weight',
                         value: _healthData['weight'] != null
                             ? '${_healthData['weight']['value']} ${_healthData['weight']['unit']}'
                             : 'N/A kg',
-                        icon: Icon(Icons.monitor_weight, color: Colors.brown),
+                        icon: const Icon(Icons.monitor_weight,
+                            color: Colors.brown),
                       ),
                       _buildHealthCard(
                         title: 'Height',
                         value: _healthData['height'] != null
                             ? '${_healthData['height']['value']} ${_healthData['height']['unit']}'
                             : 'N/A cm',
-                        icon: Icon(Icons.height, color: Colors.green),
+                        icon: const Icon(Icons.height, color: Colors.green),
                       ),
                       _buildHealthCard(
                         title: 'Body Temperature',
                         value: _healthData['temperature'] != null
                             ? '${_healthData['temperature']['value']} ${_healthData['temperature']['unit']}'
                             : 'N/A °C',
-                        icon: Icon(Icons.thermostat, color: Colors.red),
+                        icon: const Icon(Icons.thermostat, color: Colors.red),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       TextButton(
                         onPressed: () =>
                             _healthService.openHealthConnectSettings(),
-                        child: Text(
+                        child: const Text(
                           'Open Health Connect Settings',
                           style: TextStyle(
                             color: Colors.deepPurple,
@@ -244,7 +248,7 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple.shade100,
         onPressed: () => _showAddDataDialog(),
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -253,24 +257,24 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => SimpleDialog(
-        title: Text('Add Health Data'),
+        title: const Text('Add Health Data'),
         children: [
           SimpleDialogOption(
-            child: Text('Add Steps'),
+            child: const Text('Add Steps'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(HealthDataType.STEPS, 'Steps');
             },
           ),
           SimpleDialogOption(
-            child: Text('Add Heart Rate'),
+            child: const Text('Add Heart Rate'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(HealthDataType.HEART_RATE, 'Heart Rate');
             },
           ),
           SimpleDialogOption(
-            child: Text('Add Blood Pressure (Systolic)'),
+            child: const Text('Add Blood Pressure (Systolic)'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
@@ -278,7 +282,7 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
             },
           ),
           SimpleDialogOption(
-            child: Text('Add Blood Pressure (Diastolic)'),
+            child: const Text('Add Blood Pressure (Diastolic)'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
@@ -286,35 +290,35 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
             },
           ),
           SimpleDialogOption(
-            child: Text('Add Blood Glucose'),
+            child: const Text('Add Blood Glucose'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(HealthDataType.BLOOD_GLUCOSE, 'Blood Glucose');
             },
           ),
           SimpleDialogOption(
-            child: Text('Add Blood Oxygen'),
+            child: const Text('Add Blood Oxygen'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(HealthDataType.BLOOD_OXYGEN, 'Blood Oxygen');
             },
           ),
           SimpleDialogOption(
-            child: Text('Add Weight'),
+            child: const Text('Add Weight'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(HealthDataType.WEIGHT, 'Weight');
             },
           ),
           SimpleDialogOption(
-            child: Text('Add Height'),
+            child: const Text('Add Height'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(HealthDataType.HEIGHT, 'Height');
             },
           ),
           SimpleDialogOption(
-            child: Text('Add Body Temperature'),
+            child: const Text('Add Body Temperature'),
             onPressed: () {
               Navigator.pop(context);
               _addHealthData(

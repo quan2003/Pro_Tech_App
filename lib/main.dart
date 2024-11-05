@@ -3,11 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart'; // Thêm import này
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 
-// Conditional import for Workmanager
 import './views/utils/workmanager_helper.dart'
     if (dart.library.js) './views/utils/workmanager_web_stub.dart';
 import 'views/Routes/AppRoutes.dart';
@@ -16,7 +15,6 @@ import 'views/utils/NotificationService.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // ignore: avoid_print
   print('Handling a background message: ${message.messageId}');
   await NotificationService().handleBackgroundMessage(message);
 }
@@ -29,8 +27,6 @@ Future<void> _ensureFirebaseInitialized() async {
     );
   }
 }
-
-// final HealthService healthService = HealthService();
 
 void main() async {
   await runZonedGuarded(() async {
@@ -50,15 +46,6 @@ void main() async {
           DeviceOrientation.portraitUp,
           DeviceOrientation.portraitDown,
         ]);
-
-        // Initialize HealthService
-        // await healthService.initialize();
-        // bool authorized = await healthService.requestAuthorization();
-        // if (authorized) {
-        //   print('Health data access authorized');
-        // } else {
-        //   print('Health data access not authorized');
-        // }
       }
 
       runApp(const MyApp());
@@ -84,6 +71,19 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.SPLASH_SCREEN,
       getPages: AppRoutes.routes,
+
+      // Thêm cấu hình localization
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('vi', 'VN'), // Vietnamese
+        Locale('en', 'US'), // English
+      ],
+      locale: const Locale('vi', 'VN'), // Set default locale to Vietnamese
+
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
@@ -93,20 +93,18 @@ class MyApp extends StatelessWidget {
 
 class DefaultFirebaseOptions {
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg',
-    appId: '1:989890578847:android:8c0ab0b820dbdbfa9d95aa',
-    messagingSenderId: '989890578847',
-    projectId: 'signin-example-b56ee',
-    storageBucket: 'signin-example-b56ee.appspot.com',
+    apiKey: "AIzaSyC3jkNrx89FjYJssximwxCLb4POt-uKjiU",
+    appId: "1:477376322198:android:d82e4b825b496c02bb80b7",
+    messagingSenderId: "477376322198",
+    projectId: "pro-tech-app-29e61",
+    storageBucket: "pro-tech-app-29e61.appspot.com",
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDm-LnWxMTncU4nvMhdGFyT0Qh2SSjwgIg',
-    appId: '1:989890578847:web:903a936a3b2278ed9d95aa',
-    messagingSenderId: '989890578847',
-    projectId: 'signin-example-b56ee',
-    storageBucket: 'signin-example-b56ee.appspot.com',
-    authDomain: 'signin-example-b56ee.firebaseapp.com',
-    measurementId: 'G-6C63FNQH88',
-  );
+      apiKey: "AIzaSyDH-BItWvtlFlpP-G7ywZjCbJvdGiH5gkY",
+      authDomain: "pro-tech-app-29e61.firebaseapp.com",
+      projectId: "pro-tech-app-29e61",
+      storageBucket: "pro-tech-app-29e61.appspot.com",
+      messagingSenderId: "477376322198",
+      appId: "1:477376322198:web:268ae152c2d705a7bb80b7");
 }

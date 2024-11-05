@@ -25,6 +25,7 @@
     <!-- Activity & Sensor Permissions -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
     <uses-permission android:name="android.permission.BODY_SENSORS"/>
+    <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
 
     <!-- Bluetooth Permissions -->
@@ -58,7 +59,8 @@
     <application
         android:label="Pro-Tech"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">  <!-- Added this line -->
 
         <!-- Main Activity -->
         <activity
@@ -165,6 +167,16 @@
             </intent-filter>
         </activity-alias>
 
+        <!-- Health Connect Intent Handler -->
+        <activity-alias
+            android:name="HealthPermissionRationaleActivity"
+            android:exported="true"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity-alias>
+
     </application>
 
     <!-- Query Permissions -->
@@ -180,10 +192,9 @@
         <intent>
             <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
         </intent>
-    </queries>
-    <queries>
+
+        <!-- Google Play Services -->
         <package android:name="com.google.android.gms"/>
     </queries>
-
 
 </manifest>

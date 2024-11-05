@@ -10,8 +10,10 @@ import 'dart:io' show Platform;
 import 'package:workmanager/workmanager.dart';
 
 class NotificationService {
-  static final NotificationService _notificationService = NotificationService._internal();
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static final NotificationService _notificationService =
+      NotificationService._internal();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   factory NotificationService() {
@@ -154,7 +156,7 @@ class NotificationService {
         title,
         body,
         tz.TZDateTime.from(scheduledDate, tz.local),
-        NotificationDetails(
+        const NotificationDetails(
           android: AndroidNotificationDetails(
             'medication_channel',
             'Medication Reminders',
@@ -292,7 +294,8 @@ class NotificationService {
     });
 
     // Handle when the app is launched from a terminated state
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
       handleBackgroundMessage(initialMessage);
     }
@@ -398,7 +401,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final notificationService = NotificationService();
   await notificationService.handleBackgroundMessage(message);
 }
-
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
