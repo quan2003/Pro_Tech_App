@@ -5,6 +5,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../controller/health_controller.dart';
+import '../utils/LoadingIndicator.dart';
 import 'BulletinBoardScreen.dart';
 import 'CookiePolicyScreen.dart';
 import 'FirstDayIntroduction.dart';
@@ -71,6 +73,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final HealthController healthController = Get.put(HealthController());
   final StepTrackingService stepController = Get.put(StepTrackingService());
   final BMIController bmiController = Get.put(BMIController());
 
@@ -399,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 "Xin chào, $userName!",
                                 style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
@@ -409,15 +412,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.alarm,
-                              color: Colors.teal), // Change to alarm icon
-                          onPressed: () {
-                            // _scheduleAlarm(); // Calls the method to schedule an alarm
-                            Get.snackbar('Báo thức',
-                                'Báo thức đã được đặt trong 10 giây tới.');
-                          },
                         ),
                       ],
                     ),
@@ -620,43 +614,41 @@ class _HomeScreenState extends State<HomeScreen> {
                             Obx(() {
                               return _buildHealthGoal(
                                 onTap: () async {
-                                  // Điều hướng đến StepTrackingScreen và chờ kết quả
-                                  final steps = await Get.to(
+                                  await Get.to(
                                       () => const StepTrackingScreen());
-
-                                  // Kiểm tra và cập nhật số bước nếu có
-                                  if (steps != null) {
-                                    stepController.steps.value =
-                                        steps; // Cập nhật số bước
-                                  }
+                                  healthController
+                                      .fetchHealthData(); // Refresh sau khi quay lại
                                 },
                                 icon: Image.asset(
-                                  'assets/images/shoe.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
-                                  height:
-                                      50.0, // Điều chỉnh kích thước hình ảnh nếu cần
+                                  'assets/images/shoe.png',
+                                  height: 50.0,
                                   width: 50.0,
                                 ),
                                 label: 'Bước • hôm nay',
-                                value: stepController
-                                    .stepCountString, // Hiển thị số bước
+                                value: healthController.stepCountString,
                                 color: Colors.pinkAccent,
                               );
                             }),
 
-                            _buildHealthGoal(
-                              onTap: () {
-                                Get.to(() => const SleepTrackingScreen());
-                              },
-                              icon: Image.asset(
-                                'assets/images/sleep.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
-                                height:
-                                    50.0, // Điều chỉnh kích thước hình ảnh nếu cần
-                                width: 50.0,
-                              ),
-                              label: 'Thời gian hồi phục',
-                              value: '9m • 83% hồi phục',
-                              color: Colors.teal,
-                            ),
+                            Obx(() {
+                              return _buildHealthGoal(
+                                onTap: () async {
+                                  await Get.to(
+                                      () => const SleepTrackingScreen());
+                                  healthController
+                                      .fetchHealthData(); // Refresh sau khi quay lại
+                                },
+                                icon: Image.asset(
+                                  'assets/images/sleep.png',
+                                  height: 50.0,
+                                  width: 50.0,
+                                ),
+                                label:
+                                    'Giấc ngủ • ${healthController.sleepQualityString}',
+                                value: healthController.sleepDurationString,
+                                color: Colors.teal,
+                              );
+                            }),
                           ],
                         ),
                       ),

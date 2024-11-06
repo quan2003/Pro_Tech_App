@@ -2,4 +2,5 @@
     <string name="app_name">Pro-Tech</string>
     <string name="facebook_app_id">220380710070048</string>
     <string name="facebook_client_token">e977c72f0c06a2b5bee5a867e243b663</string>
+    <string name="default_notification_channel_id">default_notification_channel</string>
 </resources>

@@ -601,6 +601,89 @@ class MedicationList extends StatelessWidget {
 
   const MedicationList({super.key, required this.selectedDate});
 
+  bool shouldTakeMedicationOnDate(
+      QueryDocumentSnapshot medication, DateTime date) {
+    final Map<String, dynamic> data = medication.data() as Map<String, dynamic>;
+    final int quantity = data['quantity'] ?? 0;
+
+    // Nếu hết thuốc, không cần uống
+    if (quantity <= 0) {
+      return false;
+    }
+
+    // Lấy thông tin tần suất uống thuốc
+    final String frequency = data['frequency'] ?? 'Hàng ngày';
+    final Map<String, dynamic>? frequencyDetails =
+        data['frequencyDetails'] as Map<String, dynamic>?;
+
+    // Lấy ngày tạo thuốc từ createdAt
+    final DateTime startDate = (data['createdAt'] as Timestamp).toDate();
+
+    // Đặt giờ, phút, giây về 0 để so sánh chính xác ngày
+    final DateTime normalizedStartDate =
+        DateTime(startDate.year, startDate.month, startDate.day);
+    final DateTime normalizedSelectedDate =
+        DateTime(date.year, date.month, date.day);
+
+    // Nếu ngày được chọn trước ngày bắt đầu
+    if (normalizedSelectedDate.isBefore(normalizedStartDate)) {
+      return false;
+    }
+
+    switch (frequency) {
+      case 'Hàng ngày':
+        return true;
+
+      case 'Cách ngày':
+        if (frequencyDetails != null && frequencyDetails['Cách ngày'] != null) {
+          int interval = frequencyDetails['Cách ngày'] as int;
+          final int daysDifference =
+              normalizedSelectedDate.difference(normalizedStartDate).inDays;
+          return daysDifference == 0 || daysDifference % interval == 0;
+        }
+        return false;
+
+      case 'Ngày cụ thể trong tuần':
+        if (frequencyDetails != null &&
+            frequencyDetails['Ngày cụ thể trong tuần'] != null) {
+          final List<dynamic> selectedDays =
+              frequencyDetails['Ngày cụ thể trong tuần'] as List<dynamic>;
+          String dayOfWeek = _getDayOfWeekInVietnamese(date.weekday);
+          return selectedDays.contains(dayOfWeek);
+        }
+        return false;
+
+      case 'Hàng tuần':
+        final int daysDifference =
+            normalizedSelectedDate.difference(normalizedStartDate).inDays;
+        return daysDifference % 7 == 0;
+
+      default:
+        return true;
+    }
+  }
+
+  String _getDayOfWeekInVietnamese(int weekday) {
+    switch (weekday) {
+      case DateTime.monday:
+        return "Thứ 2";
+      case DateTime.tuesday:
+        return "Thứ 3";
+      case DateTime.wednesday:
+        return "Thứ 4";
+      case DateTime.thursday:
+        return "Thứ 5";
+      case DateTime.friday:
+        return "Thứ 6";
+      case DateTime.saturday:
+        return "Thứ 7";
+      case DateTime.sunday:
+        return "Chủ nhật";
+      default:
+        return "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -647,11 +730,13 @@ class MedicationList extends StatelessWidget {
         };
 
         for (var med in medications) {
-          String period = _getPeriod(
-              med['schedules'] != null && med['schedules'].isNotEmpty
-                  ? med['schedules'][0]['time']
-                  : '12:00');
-          groupedMedications[period]!.add(med);
+          if (shouldTakeMedicationOnDate(med, selectedDate)) {
+            String period = _getPeriod(
+                med['schedules'] != null && med['schedules'].isNotEmpty
+                    ? med['schedules'][0]['time']
+                    : '12:00');
+            groupedMedications[period]!.add(med);
+          }
         }
 
         return ListView.builder(
@@ -694,34 +779,6 @@ class MedicationList extends StatelessWidget {
     );
   }
 
-  String _getNextReminder(List<QueryDocumentSnapshot> medications) {
-    DateTime now = DateTime.now();
-    DateTime? nextReminder;
-    for (var med in medications) {
-      final schedules = med['schedules'] as List<dynamic>?;
-      if (schedules != null) {
-        for (var schedule in schedules) {
-          final time = schedule['time'] as String;
-          final timeParts = time.split(':');
-          final scheduledDate = DateTime(
-            now.year,
-            now.month,
-            now.day,
-            int.parse(timeParts[0]),
-            int.parse(timeParts[1]),
-          );
-          if (scheduledDate.isAfter(now) &&
-              (nextReminder == null || scheduledDate.isBefore(nextReminder))) {
-            nextReminder = scheduledDate;
-          }
-        }
-      }
-    }
-    return nextReminder != null
-        ? DateFormat('HH:mm').format(nextReminder)
-        : 'Không có';
-  }
-
   String _getPeriod(String time) {
     int hour = int.parse(time.split(':')[0]);
     if (hour < 12) return 'Sáng';
@@ -744,13 +801,80 @@ class MedicationList extends StatelessWidget {
 
   void _takeMedications(List<QueryDocumentSnapshot> medications) {
     for (var med in medications) {
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('medications')
-          .doc(med.id)
-          .update({'taken': true});
+      if (shouldTakeMedicationOnDate(med, DateTime.now())) {
+        final bool currentTaken = med['taken'] ?? false;
+        final int currentQuantity = med['quantity'] ?? 0;
+        final List<dynamic> schedules = med['schedules'] ?? [];
+
+        if (schedules.isEmpty) continue;
+
+        final int dosageToTake =
+            int.tryParse(schedules[0]['dosage'].toString()) ?? 1;
+
+        if (!currentTaken && currentQuantity >= dosageToTake) {
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .collection('medications')
+              .doc(med.id)
+              .update({
+            'taken': true,
+            'quantity': currentQuantity - dosageToTake,
+            'previouslyTaken':
+                false, // Đánh dấu là được uống bởi nút "Uống tất cả"
+          });
+        }
+      }
     }
+  }
+
+  String _getNextReminder(List<QueryDocumentSnapshot> medications) {
+    DateTime now = DateTime.now();
+    DateTime? nextReminder;
+
+    for (var med in medications) {
+      final Map<String, dynamic> data = med.data() as Map<String, dynamic>;
+      final int quantity = data['quantity'] ?? 0;
+
+      if (quantity <= 0) continue;
+
+      // Tìm ngày uống thuốc tiếp theo
+      DateTime nextDate = DateTime(now.year, now.month, now.day);
+      int maxIterations = 30;
+      int iterations = 0;
+
+      // Nếu hôm nay không phải ngày uống thuốc, tìm ngày uống thuốc tiếp theo
+      while (!shouldTakeMedicationOnDate(med, nextDate) &&
+          iterations < maxIterations) {
+        nextDate = nextDate.add(const Duration(days: 1));
+        iterations++;
+      }
+
+      final List<dynamic> schedules = data['schedules'] ?? [];
+
+      // Kiểm tra các lịch trong ngày
+      for (var schedule in schedules) {
+        final String time = schedule['time'] as String;
+        final List<String> timeParts = time.split(':');
+        final DateTime scheduledDateTime = DateTime(
+          nextDate.year,
+          nextDate.month,
+          nextDate.day,
+          int.parse(timeParts[0]),
+          int.parse(timeParts[1]),
+        );
+
+        if (scheduledDateTime.isAfter(now) &&
+            (nextReminder == null ||
+                scheduledDateTime.isBefore(nextReminder))) {
+          nextReminder = scheduledDateTime;
+        }
+      }
+    }
+
+    return nextReminder != null
+        ? '${DateFormat('dd/MM/yyyy').format(nextReminder)} ${DateFormat('HH:mm').format(nextReminder)}'
+        : 'Không có';
   }
 }
 
@@ -759,72 +883,52 @@ class MedicationItem extends StatelessWidget {
 
   const MedicationItem({super.key, required this.medication});
 
-  @override
-  Widget build(BuildContext context) {
-    final Map<String, dynamic> data = medication.data() as Map<String, dynamic>;
-    final String name = data['drugName'] ?? 'Không có tên';
-    final String dosage = data['dosage'] ?? 'Không có liều lượng';
-    final String unit = data['unit'] ?? '';
-    final List<dynamic> schedules = data['schedules'] ?? [];
-    final bool taken = data['taken'] ?? false;
-    final int quantity = data['quantity'] ?? 0;
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: ListTile(
-        leading: Icon(
-          Icons.medication,
-          color: taken ? Colors.green : Colors.grey,
-        ),
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('$dosage $unit'), // Hiển thị liều lượng và đơn vị
-            Text(schedules
-                .map((s) => s['time'])
-                .join(', ')), // Hiển thị thời gian uống thuốc
-            Text('Còn lại: $quantity'), // Hiển thị số thuốc còn lại
-          ],
-        ),
-        trailing: IconButton(
-          icon: Icon(
-            taken ? Icons.check_circle : Icons.circle_outlined,
-            color: taken ? Colors.green : Colors.grey,
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: const Text('Bạn có chắc chắn muốn xóa thuốc này không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
           ),
-          onPressed: () => _toggleMedicationTaken(context),
-        ),
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text(name),
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Liều lượng: $dosage $unit'),
-                  Text(
-                      'Thời gian: ${schedules.map((s) => s['time']).join(', ')}'),
-                  Text('Đã uống: ${taken ? 'Có' : 'Chưa'}'),
-                  Text('Còn lại: $quantity'),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Đóng'),
-                ),
-              ],
-            ),
-          );
-        },
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _deleteMedication(context);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Xóa'),
+          ),
+        ],
       ),
     );
+  }
+
+  void _deleteMedication(BuildContext context) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection('medications')
+          .doc(medication.id)
+          .delete();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã xóa thuốc thành công')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Không thể xóa thuốc. Vui lòng thử lại sau.')),
+        );
+      }
+    }
   }
 
   void _toggleMedicationTaken(BuildContext context) async {
@@ -840,20 +944,22 @@ class MedicationItem extends StatelessWidget {
       return;
     }
 
-    // Lấy liều lượng từ lịch uống thuốc đầu tiên
     final int dosageToTake =
-        int.tryParse(schedules[0]['dosage'].toString()) ?? 0;
+        int.tryParse(schedules[0]['dosage'].toString()) ?? 1;
 
-    if (!currentTaken && currentQuantity < dosageToTake) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không đủ thuốc để uống')),
-      );
-      return;
+    // Tính toán số lượng mới
+    int newQuantity;
+    if (!currentTaken) {
+      if (currentQuantity < dosageToTake) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không đủ thuốc để uống')),
+        );
+        return;
+      }
+      newQuantity = currentQuantity - dosageToTake;
+    } else {
+      newQuantity = currentQuantity + dosageToTake;
     }
-
-    final int newQuantity = currentTaken
-        ? currentQuantity + dosageToTake
-        : currentQuantity - dosageToTake;
 
     await FirebaseFirestore.instance
         .collection('users')
@@ -864,5 +970,109 @@ class MedicationItem extends StatelessWidget {
       'taken': !currentTaken,
       'quantity': newQuantity,
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, dynamic> data = medication.data() as Map<String, dynamic>;
+    final String name = data['drugName'] ?? 'Không có tên';
+    final String dosage = data['dosage'] ?? 'Không có liều lượng';
+    final String unit = data['unit'] ?? '';
+    final List<dynamic> schedules = data['schedules'] ?? [];
+    final bool taken = data['taken'] ?? false;
+    final int quantity = data['quantity'] ?? 0;
+
+    return Dismissible(
+      key: Key(medication.id),
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 16),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        bool? result = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Xác nhận xóa'),
+            content: const Text('Bạn có chắc chắn muốn xóa thuốc này không?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Hủy'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Xóa'),
+              ),
+            ],
+          ),
+        );
+        return result ?? false;
+      },
+      onDismissed: (direction) {
+        _deleteMedication(context);
+      },
+      child: GestureDetector(
+        onLongPress: () => _showDeleteConfirmationDialog(context),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: ListTile(
+            leading: Icon(
+              Icons.medication,
+              color: taken ? Colors.green : Colors.grey,
+            ),
+            title:
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('$dosage $unit'),
+                Text(schedules.map((s) => s['time']).join(', ')),
+                Text('Còn lại: $quantity'),
+              ],
+            ),
+            trailing: IconButton(
+              icon: Icon(
+                taken ? Icons.check_circle : Icons.circle_outlined,
+                color: taken ? Colors.green : Colors.grey,
+              ),
+              onPressed: () => _toggleMedicationTaken(context),
+            ),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text(name),
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Liều lượng: $dosage $unit'),
+                      Text(
+                          'Thời gian: ${schedules.map((s) => s['time']).join(', ')}'),
+                      Text('Đã uống: ${taken ? 'Có' : 'Chưa'}'),
+                      Text('Còn lại: $quantity'),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Đóng'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

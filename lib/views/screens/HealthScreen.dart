@@ -85,6 +85,10 @@ class _HealthScreenState extends State<HealthScreen> {
                 children: [
                   _buildWeightCard(),
                   const SizedBox(height: 16),
+                  _buildStepCountCard(), // Step count card
+                  const SizedBox(height: 16),
+                  _buildSleepManagementCard(), // Sleep management card
+                  const SizedBox(height: 16),
                   _buildMedicationCard(),
                   const SizedBox(height: 16),
                   _buildHealthRecordCard(),
@@ -438,6 +442,89 @@ class _HealthScreenState extends State<HealthScreen> {
               ],
             ),
             const Text('60 NGÀY TRƯỚC', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStepCountCard() {
+    int stepCount = 329; // Example step count data; replace with actual data
+    int averageSteps = 4020; // Example average steps; replace with actual data
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.directions_walk, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text('Bước chân',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                Chip(
+                  label: const Text('THẤP'),
+                  backgroundColor: Colors.red[100],
+                  labelStyle: const TextStyle(color: Colors.red),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text('${stepCount} bước',
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text('Trung bình 30 ngày: $averageSteps bước',
+                style: const TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSleepManagementCard() {
+    String sleepDuration =
+        '4 h 57 m'; // Example sleep duration; replace with actual data
+    int recoveryRate = 78; // Example recovery rate; replace with actual data
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.bed, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text('Quản lý giấc ngủ',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                Chip(
+                  label: const Text('VỪA PHẢI'),
+                  backgroundColor: Colors.yellow[100],
+                  labelStyle: const TextStyle(color: Colors.orange),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text('Thời gian ngủ: $sleepDuration',
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text('Tỉ lệ hồi phục: $recoveryRate %',
+                style: const TextStyle(color: Colors.grey)),
           ],
         ),
       ),

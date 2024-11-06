@@ -65,6 +65,7 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
     required String value,
     required Widget icon,
     Color backgroundColor = Colors.white,
+    List<Widget>? additionalInfo,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -81,29 +82,37 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
           children: [
-            SizedBox(width: 24, height: 24, child: icon),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+            Row(
+              children: [
+                SizedBox(width: 24, height: 24, child: icon),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        value,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
+            if (additionalInfo != null) ...[
+              const SizedBox(height: 8),
+              ...additionalInfo,
+            ],
           ],
         ),
       ),
@@ -152,6 +161,123 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
     );
   }
 
+  Future<void> _addSleepData() async {
+    DateTime? startTime;
+    DateTime? endTime;
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Sleep Data'),
+        content: StatefulBuilder(
+          builder: (context, setState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Sleep Start Time'),
+                subtitle: Text(startTime?.toString() ?? 'Not selected'),
+                onTap: () async {
+                  final picked = await showDateTimePicker(
+                    context: context,
+                    initialDate:
+                        DateTime.now().subtract(const Duration(hours: 8)),
+                  );
+                  if (picked != null) {
+                    setState(() => startTime = picked);
+                  }
+                },
+              ),
+              ListTile(
+                title: const Text('Sleep End Time'),
+                subtitle: Text(endTime?.toString() ?? 'Not selected'),
+                onTap: () async {
+                  final picked = await showDateTimePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    setState(() => endTime = picked);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: const Text('Add'),
+            onPressed: () async {
+              if (startTime != null && endTime != null) {
+                if (endTime!.isBefore(startTime!)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('End time must be after start time'),
+                    ),
+                  );
+                  return;
+                }
+                bool success = await _healthService.writeSleepData(
+                  startTime!,
+                  endTime!,
+                );
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Sleep data added successfully')),
+                  );
+                  _fetchData();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Failed to add sleep data')),
+                  );
+                }
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<DateTime?> showDateTimePicker({
+    required BuildContext context,
+    DateTime? initialDate,
+  }) async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: initialDate ?? DateTime.now(),
+      firstDate: DateTime.now().subtract(const Duration(days: 7)),
+      lastDate: DateTime.now(),
+    );
+
+    if (date != null) {
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(initialDate ?? DateTime.now()),
+      );
+
+      if (time != null) {
+        return DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
+      }
+    }
+    return null;
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,6 +298,46 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
+                      // Sleep Card
+                      if (_healthData['sleep'] != null)
+                        _buildHealthCard(
+                          title: 'Sleep',
+                          value:
+                              '${_healthData['sleep']['value']} ${_healthData['sleep']['unit']}',
+                          icon: const Icon(Icons.bedtime, color: Colors.indigo),
+                          backgroundColor: Colors.blue.shade50,
+                          additionalInfo: [
+                            Text(
+                              'From: ${_formatDateTime(DateTime.parse(_healthData['sleep']['start_time']))}',
+                              style: const TextStyle(
+                                  fontSize: 14, color: Colors.grey),
+                            ),
+                            Text(
+                              'To: ${_formatDateTime(DateTime.parse(_healthData['sleep']['end_time']))}',
+                              style: const TextStyle(
+                                  fontSize: 14, color: Colors.grey),
+                            ),
+                            if (_healthData['sleep']['quality'] != null) ...[
+                              Text(
+                                'Sleep Efficiency: ${_healthData['sleep']['quality']['efficiency']}%',
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.grey),
+                              ),
+                              Text(
+                                'Wake-ups: ${_healthData['sleep']['quality']['awake_count']}',
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.grey),
+                              ),
+                            ],
+                          ],
+                        )
+                      else
+                        _buildHealthCard(
+                          title: 'Sleep',
+                          value: 'No sleep data',
+                          icon: const Icon(Icons.bedtime, color: Colors.indigo),
+                          backgroundColor: Colors.blue.shade50,
+                        ),
                       _buildHealthCard(
                         title: 'Steps',
                         value: '${_healthData['steps'] ?? '0'}',
@@ -259,6 +425,13 @@ class _HealthDashboardScreenState extends State<HealthDashboardScreen> {
       builder: (context) => SimpleDialog(
         title: const Text('Add Health Data'),
         children: [
+          SimpleDialogOption(
+            child: const Text('Add Sleep Data'),
+            onPressed: () {
+              Navigator.pop(context);
+              _addSleepData();
+            },
+          ),
           SimpleDialogOption(
             child: const Text('Add Steps'),
             onPressed: () {

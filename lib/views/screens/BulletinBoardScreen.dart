@@ -5,13 +5,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import 'AboutUsScreen.dart';
+import 'AccountDataScreen.dart';
+import 'CookiePolicyScreen.dart';
+import 'FirstDayIntroduction.dart';
 import 'HealthScreen.dart';
 import 'HomeScreen.dart';
 import 'MedicineScreen.dart';
 import 'PostDetailScreen.dart';
 import 'ChatScreen.dart';
+import 'PrivacyPolicyScreen.dart';
 import 'ProfileScreen.dart';
 import '../Routes/AppRoutes.dart';
+import 'TearmsAndConditionsScreen.dart';
 
 class BulletinBoardScreen extends StatefulWidget {
   const BulletinBoardScreen({super.key});
@@ -236,7 +242,152 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
               }
             },
           ),
-          // Add other ListTiles as in HealthScreen
+          ListTile(
+            leading: const Icon(Icons.info), // App version icon
+            title: const Text('Phiên bản ứng dụng'),
+            onTap: () {
+              // Logic for displaying app version
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_circle), // Account and data icon
+            title: const Text('Tài khoản & dữ liệu'),
+            onTap: () {
+              Get.to(() => const AccountDataScreen());
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.language), // Language icon
+            title: const Text('Ngôn ngữ'),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.public), // Country icon
+            title: const Text('Quốc gia'),
+            onTap: () {
+              // Logic for changing country settings
+            },
+          ),
+          const Divider(), // Add a divider to separate sections
+          // Health Section
+          ListTile(
+            leading: const Icon(Icons.health_and_safety),
+            title: const Text('Tình trạng sức khỏe'),
+            onTap: () {
+              Get.toNamed(AppRoutes.HEALTH_DASHBOARD);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.assessment),
+            title: const Text('Kế hoạch sức khỏe'),
+            onTap: () {
+              // Navigate to Health Plan
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.local_hospital),
+            title: const Text('Bệnh viện / bác sĩ'),
+            onTap: () {
+              // Navigate to Hospitals/Doctors
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.assignment),
+            title: const Text('Đơn vị'),
+            onTap: () {
+              // Navigate to Health Units
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('Hướng dẫn sức khỏe'),
+            onTap: () {
+              // Navigate to Health Guidance
+            },
+          ),
+
+          // Access Permissions Section
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.notifications),
+            title: const Text('Thông báo'),
+            onTap: () {
+              // Navigate to Notification Settings
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.bluetooth),
+            title: const Text('Thiết bị Bluetooth'),
+            onTap: () {
+              // Get.to(() => FindDevicesScreen());
+            },
+          ),
+
+          // Introduction and Information Section
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text('Về chúng tôi'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutUsScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.article),
+            title: const Text('Giới thiệu về Ngày Đầu Tiên'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const Firstdayintroduction()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.rule),
+            title: const Text('Điều khoản & điều kiện'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const TermsAndConditions()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip),
+            title: const Text('Chính sách bảo mật'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const PrivacyPolicyScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.policy),
+            title: const Text('Quy tắc Trò chơi hóa'),
+            onTap: () {
+              // Gamification Rules
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.cookie),
+            title: const Text('Chính sách Cookie'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CookiePolicyScreen()),
+              );
+            },
+          ),
+
+          // Logout Section
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),

@@ -30,9 +30,14 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            ndk {
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+            }
         }
     }
 
@@ -71,6 +76,8 @@ configurations.all {
     resolutionStrategy {
         force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0'
         force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0'
+        // Chỉ force một version của protobuf
+        force 'com.google.protobuf:protobuf-javalite:3.24.0'
     }
 }
 
@@ -80,13 +87,15 @@ dependencies {
     // Firebase BOM
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     
-    // Firebase dependencies (don't specify versions when using BOM)
+    // Firebase dependencies
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-firestore' // Thêm firestore
     
     // Google Play Services
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation 'com.google.android.gms:play-services-analytics:18.1.0'
+    implementation 'com.google.android.gms:play-services-basement:18.3.0' // Thêm basement
     
     // AndroidX dependencies
     implementation 'androidx.multidex:multidex:2.0.1'

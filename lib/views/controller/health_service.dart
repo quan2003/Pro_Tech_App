@@ -3,7 +3,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'dart:io';
-import 'dart:async'; // Added for TimeoutException
+import 'dart:async';
 
 class HealthService {
   final Health _health = Health();
@@ -11,9 +11,7 @@ class HealthService {
 
   Future<bool> initialize() async {
     try {
-      // Request basic permissions first
       await _requestBasicPermissions();
-
       bool authorized = await requestAuthorization();
       _isInitialized = authorized;
       return authorized;
@@ -25,11 +23,9 @@ class HealthService {
 
   Future<void> _requestBasicPermissions() async {
     if (Platform.isAndroid) {
-      // Request required Android permissions
       await Permission.activityRecognition.request();
       await Permission.sensors.request();
 
-      // For Android 12 and above, background sensors permission is not handled explicitly by `permission_handler`
       if (await Permission.sensors.isGranted) {
         print("Sensors permission granted");
       }
@@ -43,7 +39,6 @@ class HealthService {
     }
 
     try {
-      // First, try to open Health Connect directly
       const intent = AndroidIntent(
         action: 'android.health.connect.action.HEALTH_CONNECT_SETTINGS',
         flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
@@ -56,7 +51,6 @@ class HealthService {
         print("Failed to open Health Connect directly: $e");
       }
 
-      // If direct opening fails, try to open app settings
       const fallbackIntent = AndroidIntent(
         action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
         data: 'package:com.google.android.apps.healthdata',
@@ -70,7 +64,6 @@ class HealthService {
         print("Failed to open app settings: $e");
       }
 
-      // If all else fails, open Play Store
       const playStoreIntent = AndroidIntent(
         action: 'android.intent.action.VIEW',
         data: 'market://details?id=com.google.android.apps.healthdata',
@@ -94,21 +87,23 @@ class HealthService {
         HealthDataType.BODY_TEMPERATURE,
         HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
         HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+        HealthDataType.SLEEP_ASLEEP,
+        HealthDataType.SLEEP_AWAKE,
+        HealthDataType.SLEEP_LIGHT,
+        HealthDataType.SLEEP_DEEP,
+        HealthDataType.SLEEP_REM,
+        HealthDataType.SLEEP_SESSION
       ];
 
-      // First check if we have permissions
       bool? hasPermissions = await _health.hasPermissions(types);
 
-      // Request authorization if we don't have permissions
       if (hasPermissions != true) {
         try {
           bool authorized = await _health.requestAuthorization(types);
           print("Health Connect authorization result: $authorized");
 
           if (!authorized) {
-            // If authorization failed, try to open Health Connect settings
             await openHealthConnectSettings();
-            // Wait a bit and check permissions again
             await Future.delayed(const Duration(seconds: 2));
             authorized = await _health.requestAuthorization(types);
           }
@@ -141,6 +136,9 @@ class HealthService {
       // Get steps
       result['steps'] = await getTodaySteps();
       print("Steps data: ${result['steps']}");
+
+      // Get sleep data
+      await _fetchSleepData(result, yesterday, now);
 
       // Get heart rate
       await _fetchHealthDataPoint(
@@ -180,6 +178,59 @@ class HealthService {
     } catch (e) {
       print("Error in fetchAllHealthData: $e");
       return result;
+    }
+  }
+
+  Future<void> _fetchSleepData(
+    Map<String, dynamic> result,
+    DateTime startTime,
+    DateTime endTime,
+  ) async {
+    try {
+      // Fetch sleep sessions
+      List<HealthDataPoint> sleepSessions =
+          await _health.getHealthDataFromTypes(
+        startTime: startTime,
+        endTime: endTime,
+        types: [
+          HealthDataType.SLEEP_SESSION,
+          HealthDataType.SLEEP_ASLEEP,
+          HealthDataType.SLEEP_AWAKE,
+          HealthDataType.SLEEP_LIGHT,
+          HealthDataType.SLEEP_DEEP,
+          HealthDataType.SLEEP_REM
+        ],
+      );
+
+      if (sleepSessions.isNotEmpty) {
+        print("Found ${sleepSessions.length} sleep sessions");
+
+        // Sort by date to get sessions in order
+        sleepSessions.sort((a, b) => b.dateTo.compareTo(a.dateTo));
+
+        // Process each sleep session
+        for (var session in sleepSessions) {
+          print("Sleep session: ${session.typeString}");
+          print("From: ${session.dateFrom} to: ${session.dateTo}");
+          print("Value: ${session.value}");
+        }
+
+        // Calculate total sleep time and quality metrics
+        var latestSession = sleepSessions.first;
+        Duration sleepDuration =
+            latestSession.dateTo.difference(latestSession.dateFrom);
+
+        result['sleep'] = {
+          'value': (sleepDuration.inMinutes / 60.0).toStringAsFixed(1),
+          'unit': 'hours',
+          'start_time': latestSession.dateFrom.toString(),
+          'end_time': latestSession.dateTo.toString(),
+        };
+      } else {
+        print("No sleep sessions found");
+      }
+    } catch (e) {
+      print("Error getting sleep data: $e");
     }
   }
 
@@ -292,6 +343,34 @@ class HealthService {
       );
     } catch (e) {
       print("Error writing health data: $e");
+      return false;
+    }
+  }
+
+  Future<bool> writeSleepData(DateTime startTime, DateTime endTime) async {
+    if (!_isInitialized && !await initialize()) {
+      print("Health Service not initialized");
+      return false;
+    }
+
+    try {
+      // Write sleep session data
+      bool success = await _health.writeHealthData(
+        value: endTime.difference(startTime).inMinutes.toDouble(),
+        type: HealthDataType.SLEEP_ASLEEP,
+        startTime: startTime,
+        endTime: endTime,
+      );
+
+      if (!success) {
+        print("Failed to write sleep session data");
+        return false;
+      }
+
+      print("Successfully wrote sleep data");
+      return true;
+    } catch (e) {
+      print("Error writing sleep data: $e");
       return false;
     }
   }
