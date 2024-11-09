@@ -5,8 +5,12 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pro_tech_app/views/screens/AppVersionPage.dart';
+import 'package:pro_tech_app/views/screens/HealthGuidelinesScreen.dart';
+import 'package:pro_tech_app/views/screens/SettingsScreen.dart';
+import 'package:provider/provider.dart';
 import '../controller/health_controller.dart';
-import '../utils/LoadingIndicator.dart';
+import '../utils/SettingsProvider.dart';
 import 'BulletinBoardScreen.dart';
 import 'CookiePolicyScreen.dart';
 import 'FirstDayIntroduction.dart';
@@ -148,6 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<String>(
       future: _fetchUserName(),
       builder: (context, snapshot) {
@@ -161,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Trang chủ"),
+            title: Text("Trang chủ", style: theme.textTheme.titleLarge),
             backgroundColor: Colors.teal,
             actions: [
               IconButton(
@@ -204,8 +209,14 @@ class _HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 // Drawer Header
                 UserAccountsDrawerHeader(
-                  accountName: Text(userName),
-                  accountEmail: Text(user?.email ?? 'Không có email'),
+                  accountName: Text(userName,
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(color: Colors.white)),
+                  accountEmail: Text(
+                    user?.email ?? 'Không có email',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: Colors.white),
+                  ),
                   currentAccountPicture: CircleAvatar(
                     backgroundImage: user?.photoURL != null
                         ? NetworkImage(user!.photoURL!)
@@ -213,12 +224,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             as ImageProvider,
                   ),
                   decoration: const BoxDecoration(
-                    color: Colors.pinkAccent,
+                    color: Colors.teal,
                   ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.person), // Profile Icon
-                  title: const Text("Hồ sơ"),
+                  title: Text("Hồ sơ", style: theme.textTheme.bodyLarge),
                   onTap: () {
                     // Navigate to the profile screen
                     Get.to(() => ProfileScreen(userId: user!.uid));
@@ -228,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.info), // App version icon
                   title: const Text('Phiên bản ứng dụng'),
                   onTap: () {
-                    // Logic for displaying app version
+                    Get.to(() => AppVersionPage());
                   },
                 ),
                 ListTile(
@@ -239,19 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Get.to(() => const AccountDataScreen());
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.language), // Language icon
-                  title: const Text('Ngôn ngữ'),
-                  onTap: () {},
-                ),
-                ListTile(
-                  leading: const Icon(Icons.public), // Country icon
-                  title: const Text('Quốc gia'),
-                  onTap: () {
-                    // Logic for changing country settings
-                  },
-                ),
-                const Divider(), // Add a divider to separate sections
+                const Divider(),
                 // Health Section
                 ListTile(
                   leading: const Icon(Icons.health_and_safety),
@@ -261,48 +260,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.assessment),
-                  title: const Text('Kế hoạch sức khỏe'),
-                  onTap: () {
-                    // Navigate to Health Plan
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.local_hospital),
-                  title: const Text('Bệnh viện / bác sĩ'),
-                  onTap: () {
-                    // Navigate to Hospitals/Doctors
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.assignment),
-                  title: const Text('Đơn vị'),
-                  onTap: () {
-                    // Navigate to Health Units
-                  },
+                  leading: const Icon(Icons.app_shortcut),
+                  title: const Text('Ứng dụng sức khỏe'),
+                  onTap: () {},
                 ),
                 ListTile(
                   leading: const Icon(Icons.info_outline),
                   title: const Text('Hướng dẫn sức khỏe'),
                   onTap: () {
-                    // Navigate to Health Guidance
+                    Get.to(() => HealthGuidelinesScreen());
                   },
                 ),
 
                 // Access Permissions Section
                 const Divider(),
+
                 ListTile(
-                  leading: const Icon(Icons.notifications),
-                  title: const Text('Thông báo'),
+                  leading: const Icon(Icons.settings),
+                  title: const Text('Cài đặt'),
                   onTap: () {
-                    // Navigate to Notification Settings
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.bluetooth),
-                  title: const Text('Thiết bị Bluetooth'),
-                  onTap: () {
-                    // Get.to(() => FindDevicesScreen());
+                    Get.to(() => SettingsScreen());
                   },
                 ),
 
@@ -401,13 +378,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 "Xin chào, $userName!",
-                                style: const TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
+                                style: theme.textTheme.headlineMedium,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
                                 '$formattedDate, $formattedTime',
-                                style: const TextStyle(color: Colors.grey),
+                                style: theme.textTheme.bodyMedium
+                                    ?.copyWith(color: Colors.grey),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
@@ -416,11 +393,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
+
                     // Health Overview Card
                     Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20)),
-                      color: Colors.white, // Nền trắng
+                      color: theme.brightness == Brightness.dark
+                          ? theme.cardColor
+                          : Colors.white,
                       elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -432,12 +412,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const Icon(Icons.health_and_safety,
                                     color: Colors.teal),
                                 const SizedBox(width: 8),
-                                const Expanded(
-                                  child: Text(
+                                Expanded(
+                                  child: ThemedText(
                                     'Chỉ số khối cơ thể (BMI)',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
+                                    style: theme.textTheme.titleLarge,
                                   ),
                                 ),
                                 IconButton(
@@ -508,15 +486,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                           widget: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Text(
+                                              ThemedText(
                                                 bmi.toStringAsFixed(1),
                                                 style: const TextStyle(
-                                                    fontSize: 28,
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                                  fontSize: 28,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                               const SizedBox(height: 8),
-                                              Text(
+                                              ThemedText(
                                                 bmiController.bmiCategory.value,
                                                 style: TextStyle(
                                                   fontSize: 18,
@@ -546,25 +524,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      color: Colors.white, // Nền trắng
+                      color: theme.brightness == Brightness.dark
+                          ? theme.cardColor
+                          : Colors.white,
                       elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            // Section Header
-                            const Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
+                                ThemedText(
                                   'Mục tiêu của tôi',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: theme.textTheme.titleLarge,
                                 ),
-                                Icon(Icons.settings,
-                                    color: Colors.grey), // Settings icon
+                                Icon(
+                                  Icons.settings,
+                                  color: theme.brightness == Brightness.dark
+                                      ? Colors.white70
+                                      : Colors.grey,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 16),
@@ -610,7 +590,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               value: '0 / 3',
                               color: Colors.blue,
                             ),
-
                             Obx(() {
                               return _buildHealthGoal(
                                 onTap: () async {
@@ -629,7 +608,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.pinkAccent,
                               );
                             }),
-
                             Obx(() {
                               return _buildHealthGoal(
                                 onTap: () async {
@@ -655,7 +633,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 20),
                     Container(
-                      width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -674,7 +651,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Expanded(
                                   flex: 2,
@@ -693,10 +669,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       SizedBox(height: 4),
                                       Text(
                                         'Kết quả đánh giá sẽ cho bạn\nlời khuyên xử trí phù hợp!',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                        ),
                                       ),
                                     ],
                                   ),
@@ -717,32 +689,32 @@ class _HomeScreenState extends State<HomeScreen> {
                               physics: const NeverScrollableScrollPhysics(),
                               mainAxisSpacing: 8,
                               crossAxisSpacing: 8,
-                              childAspectRatio: 1.1,
+                              // Tăng tỷ lệ để card cao hơn
+                              childAspectRatio: 0.95,
                               children: [
                                 _buildHealthCheckCard2(
-                                    title:
-                                        'Kiểm tra nguy cơ\nmắc bệnh tim mạch',
-                                    iconPath: 'assets/images/heart.png',
-                                    onTap: () {
-                                      Get.to(
-                                        () => const HeartDiseaseCheckScreen(),
-                                        transition: Transition.rightToLeft,
-                                      );
-                                    }),
+                                  title: 'Kiểm tra nguy cơ mắc bệnh tim mạch',
+                                  iconPath: 'assets/images/heart.png',
+                                  onTap: () {
+                                    Get.to(
+                                      () => const HeartDiseaseCheckScreen(),
+                                      transition: Transition.rightToLeft,
+                                    );
+                                  },
+                                ),
                                 _buildHealthCheckCard2(
-                                  title: 'Kiểm tra nguy cơ\nmắc bệnh Alzgeimer',
+                                  title: 'Kiểm tra nguy cơ mắc bệnh Alzgeimer',
                                   iconPath: 'assets/images/brain.png',
                                   onTap: () {},
                                 ),
                                 _buildHealthCheckCard2(
-                                  title:
-                                      'Kiểm tra nguy cơ\nmắc bệnh tiểu đường',
+                                  title: 'Kiểm tra nguy cơ mắc bệnh tiểu đường',
                                   iconPath: 'assets/images/diabetes.png',
                                   onTap: () {},
                                 ),
                                 _buildHealthCheckCard2(
                                   title:
-                                      'Kiểm tra nguy cơ\nmắc bệnh trào ngược dạ dày',
+                                      'Kiểm tra nguy cơ mắc bệnh trào ngược dạ dày',
                                   iconPath: 'assets/images/stomach.png',
                                   onTap: () {},
                                 ),
@@ -757,22 +729,50 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          bottomNavigationBar: ConvexAppBar(
-            style: TabStyle.reactCircle,
-            backgroundColor: Colors.white,
-            activeColor: Colors.pinkAccent,
-            color: Colors.grey,
-            items: const [
-              TabItem(icon: Icons.home, title: 'Trang chủ'),
-              TabItem(icon: Icons.favorite, title: 'Sức khoẻ'),
-              TabItem(icon: Icons.medication, title: 'Thuốc'),
-              TabItem(icon: Icons.forum, title: 'Bảng tin'),
-            ],
-            initialActiveIndex: _selectedIndex,
-            onTap: _onItemTapped,
+          bottomNavigationBar: Consumer<SettingsProvider>(
+            builder: (context, settings, _) {
+              // Tính toán chiều cao dựa trên font size
+              double heightFactor = settings.fontSize <= 1.2 ? 1.0 : 1.5;
+
+              return SizedBox(
+                height: kToolbarHeight *
+                    heightFactor, // Điều chỉnh chiều cao tự động
+                child: ConvexAppBar(
+                  style: TabStyle.reactCircle,
+                  backgroundColor: Colors.white,
+                  activeColor: Colors.pinkAccent,
+                  color: Colors.grey,
+                  height: kToolbarHeight *
+                      heightFactor, // Điều chỉnh chiều cao của ConvexAppBar
+                  items: [
+                    _buildTabItem(Icons.home, 'Trang chủ', settings.fontSize),
+                    _buildTabItem(
+                        Icons.favorite, 'Sức khoẻ', settings.fontSize),
+                    _buildTabItem(Icons.medication, 'Thuốc', settings.fontSize),
+                    _buildTabItem(Icons.forum, 'Bảng tin', settings.fontSize),
+                  ],
+                  initialActiveIndex: _selectedIndex,
+                  onTap: _onItemTapped,
+                ),
+              );
+            },
           ),
         );
       },
+    );
+  }
+
+  // Helper method để tạo TabItem với font size tương thích
+  TabItem _buildTabItem(IconData icon, String title, double fontSize) {
+    // Giảm kích thước chữ của title để tránh overflow
+    double adjustedFontSize = 12 * (fontSize <= 1.2 ? fontSize : 1.2);
+
+    return TabItem(
+      icon: icon,
+      title: title,
+      isIconBlend: true,
+      // Xóa các thuộc tính không hỗ trợ
+      // fontFamily và textStyle không được hỗ trợ bởi TabItem
     );
   }
 
@@ -781,55 +781,50 @@ class _HomeScreenState extends State<HomeScreen> {
     required String iconPath,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
     return Material(
-      // Wrap bằng Material để có hiệu ứng ripple
       color: Colors.transparent,
       child: GestureDetector(
-        // Hoặc InkWell
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.brightness == Brightness.dark
+                ? theme.cardColor
+                : Colors.white,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      iconPath,
-                      height: 28,
-                      width: 28,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        height: 1.2,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
+                Image.asset(
+                  iconPath,
+                  height: 28,
+                  width: 28,
+                  fit: BoxFit.contain,
+                  color:
+                      theme.brightness == Brightness.dark ? Colors.white : null,
                 ),
-                GestureDetector(
-                  // Wrap riêng text "Bắt đầu"
-                  onTap: onTap,
-                  child: const Text(
-                    'Bắt đầu',
-                    style: TextStyle(
-                      color: Colors.blue,
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ThemedText(
+                    title,
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                      height: 1.2,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                ThemedText(
+                  'Bắt đầu',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -841,12 +836,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHealthGoal({
-    required Widget icon, // Thay IconData bằng Widget
+    required Widget icon,
     required String label,
     required String value,
     required Color color,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: InkWell(
@@ -861,19 +857,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    ThemedText(
                       value,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
+                      style: theme.textTheme.titleMedium,
                     ),
-                    Text(
+                    ThemedText(
                       label,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.brightness == Brightness.dark
+                            ? Colors.grey[300]
+                            : Colors.grey[600],
                       ),
                     ),
                   ],
@@ -882,12 +875,66 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Icon(
               Icons.arrow_forward_ios,
-              color: Colors.grey[400],
-              size: 18,
+              color: theme.brightness == Brightness.dark
+                  ? Colors.grey[300]
+                  : Colors.grey[400],
+              size: 18 * (theme.textTheme.bodyMedium?.fontSize ?? 14) / 14,
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class ThemedText extends StatelessWidget {
+  final String text;
+  final TextStyle? style;
+  final TextOverflow? overflow;
+  final int? maxLines;
+  final TextAlign? textAlign;
+
+  const ThemedText(
+    this.text, {
+    Key? key,
+    this.style,
+    this.overflow,
+    this.maxLines,
+    this.textAlign,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final defaultStyle = theme.textTheme.bodyMedium;
+    final finalStyle = (style ?? defaultStyle)?.copyWith(
+      color: theme.brightness == Brightness.dark ? Colors.white : Colors.black,
+    );
+
+    return Text(
+      text,
+      style: finalStyle,
+      overflow: overflow,
+      maxLines: maxLines,
+      textAlign: textAlign,
+    );
+  }
+}
+
+extension ThemeTextExtension on TextStyle? {
+  TextStyle? withThemedColor(BuildContext context) {
+    if (this == null) return null;
+    final theme = Theme.of(context);
+    return this!.copyWith(
+      color: theme.brightness == Brightness.dark ? Colors.white : Colors.black,
+    );
+  }
+}
+
+// Thêm một extension để hỗ trợ việc scale font size an toàn
+extension SafeFontSize on double {
+  double get safeScale {
+    // Giới hạn scale factor để tránh overflow
+    return this <= 1.2 ? this : 1.2;
   }
 }
