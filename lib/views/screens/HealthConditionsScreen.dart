@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Routes/AppRoutes.dart';
 
 class HealthConditionsScreen extends StatefulWidget {
@@ -60,8 +60,7 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
             children: [
               const SizedBox(height: 20),
               const Text(
@@ -147,7 +146,7 @@ class _HealthConditionsScreenState extends State<HealthConditionsScreen> {
                   });
                 },
               ),
-              const Spacer(),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   await _saveSelectionsToFirestore();

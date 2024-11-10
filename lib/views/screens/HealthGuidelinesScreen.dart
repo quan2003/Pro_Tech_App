@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HealthGuidelinesScreen extends StatelessWidget {
-  const HealthGuidelinesScreen({Key? key}) : super(key: key);
+  const HealthGuidelinesScreen({super.key});
 
   // Define URLs for each health metric
   final Map<String, String> _healthMetricUrls = const {

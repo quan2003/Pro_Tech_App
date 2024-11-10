@@ -15,6 +15,7 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
   int currentQuestion = 1;
   final int totalQuestions = 15;
   bool isRegistering = false;
+  bool isLoading = false;
   final HeartDiseaseService _heartDiseaseService = HeartDiseaseService();
   Map<String, dynamic>? _predictionResult;
 
@@ -184,6 +185,9 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
 
 // Hàm gọi API prediction
   Future<void> _getPrediction() async {
+    setState(() {
+      isLoading = true; // Bắt đầu loading
+    });
     try {
       final formData = _processFormData();
       final result = await _heartDiseaseService.predictHeartDisease(
@@ -202,11 +206,14 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
 
       setState(() {
         _predictionResult = result;
+        isLoading = false; // Kết thúc loading
       });
-
       // Chuyển sang màn hình kết quả
       Get.to(() => ResultScreen(result: _predictionResult!));
     } catch (e) {
+      setState(() {
+        isLoading = false; // Kết thúc loading nếu có lỗi
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Lỗi: $e'),
@@ -214,6 +221,33 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
         ),
       );
     }
+  }
+
+  Widget _buildLoadingOverlay() {
+    if (!isLoading) return const SizedBox.shrink();
+
+    return Container(
+      color: Colors.black.withOpacity(0.5),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Đang xử lý...',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -547,214 +581,229 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
   }
 
   Widget _buildRegistrationForm() {
-    return Column(
+    return Stack(
       children: [
-        // Header (same style as survey)
-        Container(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Image.asset(
-                  'assets/images/clipboard.png',
-                  width: 40,
-                  height: 40,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Kiểm tra nguy cơ tim mạch của Quý khách',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Container(
+        Column(
+          children: [
+            // Header
+            Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  const Text(
-                    'Đăng ký thông tin để nhận kết quả',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Image.asset(
+                      'assets/images/clipboard.png',
+                      width: 40,
+                      height: 40,
                     ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Gender Selection
-                  Row(
-                    children: [
-                      Expanded(
-                        child: RadioListTile<String>(
-                          title: const Text('Anh'),
-                          value: 'Anh',
-                          groupValue: registrationGender,
-                          onChanged: (value) {
-                            setState(() {
-                              registrationGender = value;
-                            });
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: RadioListTile<String>(
-                          title: const Text('Chị'),
-                          value: 'Chị',
-                          groupValue: registrationGender,
-                          onChanged: (value) {
-                            setState(() {
-                              registrationGender = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Name Input
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      hintText: 'Họ và tên',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Phone Input
-                  TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: 'Số điện thoại',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Birth Date Input
-                  TextFormField(
-                    controller: _birthDateController,
-                    readOnly: true,
-                    onTap: () => _selectDate(context),
-                    decoration: InputDecoration(
-                      hintText: 'Ngày sinh',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                      suffixIcon: const Icon(Icons.calendar_today),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Email Input
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      hintText: 'Email (không bắt buộc)',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Kiểm tra nguy cơ tim mạch của Quý khách',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[700],
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ),
 
-        // Submit Buttons
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_validateForm()) {
-                      _getPrediction(); // Gọi API khi form hợp lệ
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
+            // Form content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
-                    'Nhận kết quả',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Đăng ký thông tin để nhận kết quả',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Gender Selection
+                      Row(
+                        children: [
+                          Expanded(
+                            child: RadioListTile<String>(
+                              title: const Text('Anh'),
+                              value: 'Anh',
+                              groupValue: registrationGender,
+                              onChanged: isLoading
+                                  ? null
+                                  : (value) {
+                                      setState(() {
+                                        registrationGender = value;
+                                      });
+                                    },
+                            ),
+                          ),
+                          Expanded(
+                            child: RadioListTile<String>(
+                              title: const Text('Chị'),
+                              value: 'Chị',
+                              groupValue: registrationGender,
+                              onChanged: isLoading
+                                  ? null
+                                  : (value) {
+                                      setState(() {
+                                        registrationGender = value;
+                                      });
+                                    },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Form fields
+                      TextFormField(
+                        controller: _nameController,
+                        enabled: !isLoading,
+                        decoration: InputDecoration(
+                          hintText: 'Họ và tên',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: _phoneController,
+                        enabled: !isLoading,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: 'Số điện thoại',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: _birthDateController,
+                        enabled: !isLoading,
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                        decoration: InputDecoration(
+                          hintText: 'Ngày sinh',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          suffixIcon: const Icon(Icons.calendar_today),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: _emailController,
+                        enabled: !isLoading,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          hintText: 'Email (không bắt buộc)',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    isRegistering = false;
-                    currentQuestion = 1;
-                    _resetForm();
-                  });
-                },
-                child: const Text(
-                  'Trả lời lại',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w500,
+            ),
+
+            // Submit buttons
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              if (_validateForm()) {
+                                _getPrediction();
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[700],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: Text(
+                        isLoading ? 'Đang xử lý...' : 'Nhận kết quả',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  TextButton(
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            setState(() {
+                              isRegistering = false;
+                              currentQuestion = 1;
+                              _resetForm();
+                            });
+                          },
+                    child: const Text(
+                      'Trả lời lại',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+        if (isLoading) _buildLoadingOverlay(),
       ],
     );
   }
@@ -802,7 +851,7 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
+          onPressed: isLoading ? null : () => Get.back(),
         ),
         title: const Text(
           'Sàng lọc nguy cơ mắc bệnh tim mạch',
@@ -810,217 +859,252 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
         ),
         backgroundColor: Colors.blue[700],
       ),
-      body: Container(
-        color: Colors.blue[50],
-        child: isRegistering
-            ? _buildRegistrationForm()
-            : Column(
-                children: [
-                  // Header with icon and title
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Image.asset(
-                            'assets/images/clipboard.png',
-                            width: 40,
-                            height: 40,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'Kiểm tra nguy cơ tim mạch của bạn',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Progress section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (currentQuestion > 1)
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                currentQuestion--;
-                              });
-                            },
-                            child: const Row(
-                              children: [
-                                Icon(Icons.chevron_left, color: Colors.blue),
-                                Text(
-                                  'Trước',
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          const SizedBox.shrink(),
-                        Text(
-                          'Câu $currentQuestion/$totalQuestions',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            String? currentAnswer =
-                                _getSelectedAnswer(currentQuestion);
-                            if (currentAnswer == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Vui lòng chọn câu trả lời để tiếp tục'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            } else if (currentQuestion < totalQuestions) {
-                              setState(() {
-                                currentQuestion++;
-                              });
-                            }
-                          },
-                          child: const Row(
-                            children: [
-                              Text(
-                                'Sau',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Icon(Icons.chevron_right, color: Colors.blue),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Progress bar
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    child: LinearProgressIndicator(
-                      value: currentQuestion / totalQuestions,
-                      backgroundColor: Colors.grey[300],
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(Colors.blue[700]!),
-                      minHeight: 8,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Previous answer if exists
-                  if (currentQuestion > 1)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
+        children: [
+          Container(
+            color: Colors.blue[50],
+            child: isRegistering
+                ? _buildRegistrationForm()
+                : Column(
+                    children: [
+                      // Header with icon and title
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
                           children: [
-                            Text(
-                              'Câu ${currentQuestion - 1}: ${_getQuestionTitle(currentQuestion - 1)}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Image.asset(
+                                'assets/images/clipboard.png',
+                                width: 40,
+                                height: 40,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Đáp án đã chọn: ${_getSelectedAnswer(currentQuestion - 1)}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.blue,
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'Kiểm tra nguy cơ tim mạch của bạn',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
 
-                  const SizedBox(height: 16),
+                      // Progress section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (currentQuestion > 1)
+                              TextButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          currentQuestion--;
+                                        });
+                                      },
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.chevron_left,
+                                        color: Colors.blue),
+                                    Text(
+                                      'Trước',
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else
+                              const SizedBox.shrink(),
+                            Text(
+                              'Câu $currentQuestion/$totalQuestions',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      String? currentAnswer =
+                                          _getSelectedAnswer(currentQuestion);
+                                      if (currentAnswer == null) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Vui lòng chọn câu trả lời để tiếp tục'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      } else if (currentQuestion <
+                                          totalQuestions) {
+                                        setState(() {
+                                          currentQuestion++;
+                                        });
+                                      }
+                                    },
+                              child: const Row(
+                                children: [
+                                  Text(
+                                    'Sau',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Icon(Icons.chevron_right, color: Colors.blue),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
-                  // Question content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _buildQuestion(),
-                    ),
-                  ),
+                      // Progress bar
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        child: LinearProgressIndicator(
+                          value: currentQuestion / totalQuestions,
+                          backgroundColor: Colors.grey[300],
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.blue[700]!),
+                          minHeight: 8,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
 
-                  // Continue button
-                  // Continue button
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _getSelectedAnswer(currentQuestion) != null
-                            ? () {
-                                if (currentQuestion < totalQuestions) {
-                                  setState(() {
-                                    currentQuestion++;
-                                  });
-                                } else {
-                                  // Chuyển sang form đăng ký
-                                  setState(() {
-                                    isRegistering =
-                                        true; // Đặt trạng thái sang form đăng ký
-                                  });
-                                }
-                              }
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[700],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
+                      const SizedBox(height: 24),
+
+                      // Previous answer if exists
+                      if (currentQuestion > 1)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Câu ${currentQuestion - 1}: ${_getQuestionTitle(currentQuestion - 1)}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Đáp án đã chọn: ${_getSelectedAnswer(currentQuestion - 1)}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        child: Text(
-                          currentQuestion == totalQuestions
-                              ? 'Hoàn thành'
-                              : 'Tiếp tục',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+
+                      const SizedBox(height: 16),
+
+                      // Question content
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: AbsorbPointer(
+                            absorbing: isLoading,
+                            child: _buildQuestion(),
                           ),
                         ),
                       ),
-                    ),
+
+                      // Continue button
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: (isLoading ||
+                                    _getSelectedAnswer(currentQuestion) == null)
+                                ? null
+                                : () {
+                                    if (currentQuestion < totalQuestions) {
+                                      setState(() {
+                                        currentQuestion++;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isRegistering = true;
+                                      });
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue[700],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            child: Text(
+                              currentQuestion == totalQuestions
+                                  ? 'Hoàn thành'
+                                  : 'Tiếp tục',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Đang xử lý...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
+        ],
       ),
     );
   }

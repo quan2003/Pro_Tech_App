@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../utils/SettingsProvider.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class SettingsScreen extends StatelessWidget {
         'Cài đặt',
         style: TextStyle(fontSize: 20 * settings.fontSize),
       ),
-      leading: BackButton(),
+      leading: const BackButton(),
     );
   }
 

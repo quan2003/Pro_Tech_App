@@ -49,10 +49,10 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-Widget _buildLogo() {
+  Widget _buildLogo() {
     return Container(
       width: MediaQuery.of(context).size.width * 0.6, // Chiều rộng của logo
-      height: 120, // Chiều cao của logo
+      height: 160, // Chiều cao của logo
       decoration: BoxDecoration(
         image: const DecorationImage(
           image: AssetImage('assets/images/AppLogo.png'), // Ảnh nền là logo
@@ -210,7 +210,8 @@ Widget _buildLogo() {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
     );
@@ -305,31 +306,31 @@ Widget _buildLogo() {
   }
 
   Widget _buildSocialButton({
-  required IconData icon,
-  required Color color,
-  required VoidCallback onTap,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2), // Bóng nhẹ để tạo hiệu ứng nổi
-            blurRadius: 8, // Độ mờ của bóng
-            offset: const Offset(0, 4), // Độ lệch của bóng
-          ),
-        ],
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color,
+          boxShadow: [
+            BoxShadow(
+              color:
+                  Colors.black.withOpacity(0.2), // Bóng nhẹ để tạo hiệu ứng nổi
+              blurRadius: 8, // Độ mờ của bóng
+              offset: const Offset(0, 4), // Độ lệch của bóng
+            ),
+          ],
+        ),
+        child: Icon(icon, color: Colors.white),
       ),
-      child: Icon(icon, color: Colors.white),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildFooter(BuildContext context) {
     return Align(

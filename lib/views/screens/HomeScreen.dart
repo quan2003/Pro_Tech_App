@@ -239,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.info), // App version icon
                   title: const Text('Phiên bản ứng dụng'),
                   onTap: () {
-                    Get.to(() => AppVersionPage());
+                    Get.to(() => const AppVersionPage());
                   },
                 ),
                 ListTile(
@@ -268,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.info_outline),
                   title: const Text('Hướng dẫn sức khỏe'),
                   onTap: () {
-                    Get.to(() => HealthGuidelinesScreen());
+                    Get.to(() => const HealthGuidelinesScreen());
                   },
                 ),
 
@@ -279,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   leading: const Icon(Icons.settings),
                   title: const Text('Cài đặt'),
                   onTap: () {
-                    Get.to(() => SettingsScreen());
+                    Get.to(() => const SettingsScreen());
                   },
                 ),
 
@@ -548,34 +548,34 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             const SizedBox(height: 16),
-                            _buildHealthGoal(
-                              onTap: () {
-                                Get.to(() => const StepTrackingScreen());
-                              },
-                              icon: Image.asset(
-                                'assets/images/shoe.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
-                                height:
-                                    50.0, // Điều chỉnh kích thước hình ảnh nếu cần
-                                width: 50.0,
-                              ),
-                              label: 'HA • tháng này',
-                              value: '0 / 5',
-                              color: Colors.redAccent,
-                            ),
-                            _buildHealthGoal(
-                              onTap: () {
-                                Get.to(() => const StepTrackingScreen());
-                              },
-                              icon: Image.asset(
-                                'assets/images/shoe.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
-                                height:
-                                    50.0, // Điều chỉnh kích thước hình ảnh nếu cần
-                                width: 50.0,
-                              ),
-                              label: 'Khai báo một cơn đau',
-                              value: 'Đau thắt ngực',
-                              color: Colors.orange,
-                            ),
+                            // _buildHealthGoal(
+                            //   onTap: () {
+                            //     Get.to(() => const StepTrackingScreen());
+                            //   },
+                            //   icon: Image.asset(
+                            //     'assets/images/shoe.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
+                            //     height:
+                            //         50.0, // Điều chỉnh kích thước hình ảnh nếu cần
+                            //     width: 50.0,
+                            //   ),
+                            //   label: 'HA • tháng này',
+                            //   value: '0 / 5',
+                            //   color: Colors.redAccent,
+                            // ),
+                            // _buildHealthGoal(
+                            //   onTap: () {
+                            //     Get.to(() => const StepTrackingScreen());
+                            //   },
+                            //   icon: Image.asset(
+                            //     'assets/images/shoe.png', // Đường dẫn đến tệp weigh.png trong thư mục assets
+                            //     height:
+                            //         50.0, // Điều chỉnh kích thước hình ảnh nếu cần
+                            //     width: 50.0,
+                            //   ),
+                            //   label: 'Khai báo một cơn đau',
+                            //   value: 'Đau thắt ngực',
+                            //   color: Colors.orange,
+                            // ),
                             _buildHealthGoal(
                               onTap: () {
                                 Get.to(() => const StepTrackingScreen());
@@ -896,12 +896,12 @@ class ThemedText extends StatelessWidget {
 
   const ThemedText(
     this.text, {
-    Key? key,
+    super.key,
     this.style,
     this.overflow,
     this.maxLines,
     this.textAlign,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

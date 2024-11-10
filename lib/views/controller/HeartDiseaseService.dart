@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class HeartDiseaseService {
   static const String baseUrl =
-      'http://192.168.1.3:8000'; // Replace with your server's IP or domain
+      'http://192.168.1.4:8000'; // Replace with your server's IP or domain
 
   Future<Map<String, dynamic>> predictHeartDisease({
     required double age,

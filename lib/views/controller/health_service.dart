@@ -130,31 +130,44 @@ class HealthService {
 
     final now = DateTime.now();
     final yesterday = now.subtract(const Duration(hours: 24));
+    final thirtyDaysAgo = now.subtract(const Duration(days: 30));
     Map<String, dynamic> result = {};
 
     try {
-      // Get steps
+      // Get today's steps
       result['steps'] = await getTodaySteps();
-      print("Steps data: ${result['steps']}");
+      print("Today's steps: ${result['steps']}");
 
-      // Get sleep data
+      // Fetch 30-day steps data
+      List<int> dailySteps = [];
+      for (int i = 0; i < 30; i++) {
+        final date = now.subtract(Duration(days: i));
+        final startOfDay = DateTime(date.year, date.month, date.day);
+        final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+
+        final daySteps =
+            await _health.getTotalStepsInInterval(startOfDay, endOfDay);
+        if (daySteps != null) {
+          dailySteps.add(daySteps);
+        }
+      }
+
+      // Calculate average steps over the past 30 days
+      int averageSteps = 0;
+      if (dailySteps.isNotEmpty) {
+        averageSteps = dailySteps.reduce((a, b) => a + b) ~/ dailySteps.length;
+      }
+
+      result['steps_average'] = averageSteps;
+      result['steps_goal'] = 10000; // Make this configurable if needed
+      result['daily_steps'] = dailySteps;
+
+      // Fetch sleep data
       await _fetchSleepData(result, yesterday, now);
 
-      // Get heart rate
-      await _fetchHealthDataPoint(
-        result,
-        'heart_rate',
-        HealthDataType.HEART_RATE,
-        'bpm',
-        yesterday,
-        now,
-      );
-
-      // Get blood pressure
-      await _fetchBloodPressure(result, yesterday, now);
-
-      // Get other health data
+      // Fetch other health data (e.g., heart rate, blood pressure)
       final healthMetrics = {
+        HealthDataType.HEART_RATE: ['heart_rate', 'bpm'],
         HealthDataType.BLOOD_GLUCOSE: ['blood_glucose', 'mg/dL'],
         HealthDataType.BLOOD_OXYGEN: ['blood_oxygen', '%'],
         HealthDataType.WEIGHT: ['weight', 'kg'],

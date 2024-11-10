@@ -131,9 +131,12 @@ class _ChatScreenState extends State<ChatScreen> {
               ), // Placeholder image
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Health • Trò chuyện tự động',
-              style: TextStyle(color: Colors.white, fontSize: 18),
+            const Flexible(
+              child: Text(
+                'Health • Trò chuyện tự động',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+                overflow: TextOverflow.ellipsis, // Prevents overflow
+              ),
             ),
           ],
         ),

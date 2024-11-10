@@ -7,8 +7,10 @@ import 'package:intl/intl.dart';
 
 import 'AboutUsScreen.dart';
 import 'AccountDataScreen.dart';
+import 'AppVersionPage.dart';
 import 'CookiePolicyScreen.dart';
 import 'FirstDayIntroduction.dart';
+import 'HealthGuidelinesScreen.dart';
 import 'HealthScreen.dart';
 import 'HomeScreen.dart';
 import 'MedicineScreen.dart';
@@ -17,6 +19,7 @@ import 'ChatScreen.dart';
 import 'PrivacyPolicyScreen.dart';
 import 'ProfileScreen.dart';
 import '../Routes/AppRoutes.dart';
+import 'SettingsScreen.dart';
 import 'TearmsAndConditionsScreen.dart';
 
 class BulletinBoardScreen extends StatefulWidget {
@@ -231,22 +234,20 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text("Hồ sơ"),
+            leading: const Icon(Icons.person), // Profile Icon
+            title: const Text('Hồ sơ'),
             onTap: () {
-              User? user = FirebaseAuth.instance.currentUser;
-              if (user != null) {
-                Get.to(() => ProfileScreen(userId: user.uid));
-              } else {
-                Get.snackbar('Lỗi', 'Vui lòng đăng nhập để xem hồ sơ.');
-              }
+              // Navigate to the profile screen
+              Get.to(() => const ProfileScreen(
+                    userId: '',
+                  ));
             },
           ),
           ListTile(
             leading: const Icon(Icons.info), // App version icon
             title: const Text('Phiên bản ứng dụng'),
             onTap: () {
-              // Logic for displaying app version
+              Get.to(() => const AppVersionPage());
             },
           ),
           ListTile(
@@ -256,19 +257,7 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
               Get.to(() => const AccountDataScreen());
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.language), // Language icon
-            title: const Text('Ngôn ngữ'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: const Icon(Icons.public), // Country icon
-            title: const Text('Quốc gia'),
-            onTap: () {
-              // Logic for changing country settings
-            },
-          ),
-          const Divider(), // Add a divider to separate sections
+          const Divider(),
           // Health Section
           ListTile(
             leading: const Icon(Icons.health_and_safety),
@@ -278,48 +267,26 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.assessment),
-            title: const Text('Kế hoạch sức khỏe'),
-            onTap: () {
-              // Navigate to Health Plan
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.local_hospital),
-            title: const Text('Bệnh viện / bác sĩ'),
-            onTap: () {
-              // Navigate to Hospitals/Doctors
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.assignment),
-            title: const Text('Đơn vị'),
-            onTap: () {
-              // Navigate to Health Units
-            },
+            leading: const Icon(Icons.app_shortcut),
+            title: const Text('Ứng dụng sức khỏe'),
+            onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('Hướng dẫn sức khỏe'),
             onTap: () {
-              // Navigate to Health Guidance
+              Get.to(() => const HealthGuidelinesScreen());
             },
           ),
 
           // Access Permissions Section
           const Divider(),
+
           ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Thông báo'),
+            leading: const Icon(Icons.settings),
+            title: const Text('Cài đặt'),
             onTap: () {
-              // Navigate to Notification Settings
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.bluetooth),
-            title: const Text('Thiết bị Bluetooth'),
-            onTap: () {
-              // Get.to(() => FindDevicesScreen());
+              Get.to(() => const SettingsScreen());
             },
           ),
 
@@ -388,6 +355,16 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
           ),
 
           // Logout Section
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              Get.offNamed(AppRoutes.SIGNINSCREEN);
+            },
+          ),
+          // Add other ListTiles as in HealthScreen
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
