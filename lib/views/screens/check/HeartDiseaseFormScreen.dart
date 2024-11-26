@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pro_tech_app/views/screens/check/result_screen.dart';
 
-import '../../controller/HeartDiseaseService.dart';
-import 'result_screen.dart';
+import '../../controller/HeartDiseaseService1.dart';
 
 class HeartDiseaseFormScreen extends StatefulWidget {
   const HeartDiseaseFormScreen({super.key});
@@ -16,7 +16,7 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
   final int totalQuestions = 15;
   bool isRegistering = false;
   bool isLoading = false;
-  final HeartDiseaseService _heartDiseaseService = HeartDiseaseService();
+  final HeartDiseaseService1 _heartDiseaseService = HeartDiseaseService1();
   Map<String, dynamic>? _predictionResult;
 
   // Biến lưu trữ câu trả lời
@@ -196,7 +196,6 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
         chestPainType: formData['ChestPainType'],
         restingBP: formData['RestingBP'],
         cholesterol: formData['Cholesterol'],
-        fastingBS: formData['FastingBS'],
         restingECG: formData['RestingECG'],
         maxHR: formData['MaxHR'],
         exerciseAngina: formData['ExerciseAngina'],
@@ -209,7 +208,7 @@ class _HeartDiseaseFormScreenState extends State<HeartDiseaseFormScreen> {
         isLoading = false; // Kết thúc loading
       });
       // Chuyển sang màn hình kết quả
-      Get.to(() => ResultScreen(result: _predictionResult!));
+      Get.to(() => ResultScreen1(result: _predictionResult!));
     } catch (e) {
       setState(() {
         isLoading = false; // Kết thúc loading nếu có lỗi

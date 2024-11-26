@@ -52,7 +52,7 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget _buildLogo() {
     return Container(
       width: MediaQuery.of(context).size.width * 0.6, // Chiều rộng của logo
-      height: 160, // Chiều cao của logo
+      height: 130, // Chiều cao của logo
       decoration: BoxDecoration(
         image: const DecorationImage(
           image: AssetImage('assets/images/AppLogo.png'), // Ảnh nền là logo
