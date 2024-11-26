@@ -4,10 +4,12 @@ class ChatMessage {
 
   ChatMessage({required this.text, required this.isUser});
 
-  Map<String, dynamic> toJson() => {
-        'text': text,
-        'isUser': isUser,
-      };
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'isUser': isUser,
+    };
+  }
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(

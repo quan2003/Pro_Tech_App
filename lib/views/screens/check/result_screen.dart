@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ResultScreen extends StatelessWidget {
+class ResultScreen1 extends StatelessWidget {
   final Map<String, dynamic> result;
 
-  const ResultScreen({super.key, required this.result});
+  const ResultScreen1({super.key, required this.result});
 
   Color _getRiskColor(String riskLevel) {
     switch (riskLevel) {
@@ -122,6 +122,14 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Cung cấp giá trị mặc định cho các trường trong `result`
+    final riskLevel = result['risk_level'] as String? ?? 'Không xác định';
+    final probability = result['risk_probability'] as double? ?? 0.0;
+    final recommendations = (result['advice'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        ['Không có khuyến nghị'];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kết quả dự đoán'),
@@ -138,15 +146,13 @@ class ResultScreen extends StatelessWidget {
           children: [
             _buildRiskIndicator(
               context,
-              result['risk_level'] as String,
-              result['risk_probability'] as double,
+              riskLevel,
+              probability,
             ),
             const SizedBox(height: 24),
             _buildRecommendationsList(
               context,
-              (result['health_recommendations'] as List<dynamic>)
-                  .map((e) => e.toString())
-                  .toList(),
+              recommendations,
             ),
           ],
         ),
