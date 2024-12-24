@@ -19,7 +19,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   List<ChatMessage> _messages = [];
   final String apiKey =
-      'AIzaSyAG4-JKzTi_teIKXg1Es112RHEuXD4AJ70'; // Replace with your Gemini API key
+      'AIzaSyC1NWxVD0VjFsaI6Yd0pI9ziy3eWCpyUWU'; // Replace with your Gemini API key
   final String apiUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
   late String chatKey;
