@@ -135,38 +135,36 @@ class ResultScreen2 extends StatelessWidget {
             ),
           ),
         ),
-        ...adviceList
-            .map((advice) => Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.red.shade100),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          _getAdviceIcon(advice),
-                          color: _getAdviceColor(advice),
-                          size: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            advice.trim(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                      ],
+        ...adviceList.map((advice) => Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Colors.red.shade100),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      _getAdviceIcon(advice),
+                      color: _getAdviceColor(advice),
+                      size: 24,
                     ),
-                  ),
-                ))
-            .toList(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        advice.trim(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )),
       ],
     );
   }

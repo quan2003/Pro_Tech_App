@@ -59,7 +59,7 @@ class HeartDiseaseService1 {
             },
             body: json.encode(requestBody),
           )
-          .timeout(Duration(seconds: 30)); // Set timeout for the request
+          .timeout(const Duration(seconds: 30)); // Set timeout for the request
 
       print('📥 Response status: ${response.statusCode}');
 
